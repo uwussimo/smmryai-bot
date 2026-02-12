@@ -4,6 +4,7 @@ import { parseTimeArg } from "../helpers/time";
 import { fetchMessages, buildTranscript } from "../helpers/messages";
 import { askGPT, SUMMARY_PROMPT } from "../helpers/openai";
 import { getUserGroups, buildGroupKeyboard } from "../helpers/groups";
+import { checkUsageLimit, incrementUsage } from "../helpers/premium";
 
 export async function runSummary(
   ctx: Context,
@@ -42,18 +43,26 @@ export function summaryCommand(openai: OpenAI): Composer<Context> {
     const chatId = ctx.chat?.id;
     if (!chatId) return;
 
+    const userId = ctx.from?.id;
+    if (!userId) return;
+
+    // Premium check
+    const allowed = await checkUsageLimit(userId);
+    if (allowed !== true) {
+      await ctx.reply(allowed);
+      return;
+    }
+
     const arg = ctx.message?.text?.split(" ")[1];
 
     // Group chat → run directly
     if (ctx.chat.type !== "private") {
+      await incrementUsage(userId);
       await runSummary(ctx, openai, chatId, arg);
       return;
     }
 
     // DM → resolve which group
-    const userId = ctx.from?.id;
-    if (!userId) return;
-
     const groups = await getUserGroups(userId);
     if (groups.length === 0) {
       await ctx.reply("I haven't seen you in any groups yet. Send some messages in a group where I'm active.");
@@ -61,6 +70,7 @@ export function summaryCommand(openai: OpenAI): Composer<Context> {
     }
 
     if (groups.length === 1) {
+      await incrementUsage(userId);
       await runSummary(ctx, openai, groups[0].chatId, arg);
       return;
     }

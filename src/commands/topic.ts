@@ -4,6 +4,7 @@ import OpenAI from "openai";
 import { messageRepo, buildTranscript } from "../helpers/messages";
 import { askGPT, TOPIC_PROMPT } from "../helpers/openai";
 import { getUserGroups, buildGroupKeyboard } from "../helpers/groups";
+import { checkUsageLimit, incrementUsage } from "../helpers/premium";
 
 export async function runTopic(
   ctx: Context,
@@ -45,19 +46,27 @@ export function topicCommand(openai: OpenAI): Composer<Context> {
     const chatId = ctx.chat?.id;
     if (!chatId) return;
 
+    const userId = ctx.from?.id;
+    if (!userId) return;
+
     const query = ctx.message?.text?.split(" ").slice(1).join(" ")?.trim();
     if (!query) {
       await ctx.reply("Usage: /topic <keyword>\nExample: /topic crypto");
       return;
     }
 
-    if (ctx.chat.type !== "private") {
-      await runTopic(ctx, openai, chatId, query);
+    // Premium check
+    const allowed = await checkUsageLimit(userId);
+    if (allowed !== true) {
+      await ctx.reply(allowed);
       return;
     }
 
-    const userId = ctx.from?.id;
-    if (!userId) return;
+    if (ctx.chat.type !== "private") {
+      await incrementUsage(userId);
+      await runTopic(ctx, openai, chatId, query);
+      return;
+    }
 
     const groups = await getUserGroups(userId);
     if (groups.length === 0) {
@@ -66,6 +75,7 @@ export function topicCommand(openai: OpenAI): Composer<Context> {
     }
 
     if (groups.length === 1) {
+      await incrementUsage(userId);
       await runTopic(ctx, openai, groups[0].chatId, query);
       return;
     }

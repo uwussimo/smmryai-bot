@@ -2,6 +2,7 @@ import { Bot } from "grammy";
 import OpenAI from "openai";
 import { messageRecorder } from "./listeners/recorder";
 import { callbackHandler } from "./listeners/callbacks";
+import { paymentHandler } from "./listeners/payments";
 import { summaryCommand } from "./commands/summary";
 import { topicCommand } from "./commands/topic";
 import { whosaidCommand } from "./commands/whosaid";
@@ -9,6 +10,7 @@ import { helpCommand } from "./commands/help";
 import { statsCommand } from "./commands/stats";
 import { groupsCommand } from "./commands/groups";
 import { startCommand } from "./commands/start";
+import { proCommand } from "./commands/pro";
 
 export function createBot(token: string, openaiKey: string): Bot {
   const bot = new Bot(token);
@@ -21,6 +23,9 @@ export function createBot(token: string, openaiKey: string): Bot {
     );
     await next();
   });
+
+  // Payment handlers (must be before other middleware)
+  bot.use(paymentHandler());
 
   // Message recording (must be before commands)
   bot.use(messageRecorder());
@@ -36,6 +41,7 @@ export function createBot(token: string, openaiKey: string): Bot {
   bot.use(startCommand());
   bot.use(helpCommand());
   bot.use(statsCommand());
+  bot.use(proCommand());
 
   return bot;
 }

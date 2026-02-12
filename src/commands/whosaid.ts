@@ -4,6 +4,7 @@ import { parseTimeArg } from "../helpers/time";
 import { fetchMessages, buildTranscript } from "../helpers/messages";
 import { askGPT, WHOSAID_PROMPT } from "../helpers/openai";
 import { getUserGroups, buildGroupKeyboard } from "../helpers/groups";
+import { checkUsageLimit, incrementUsage } from "../helpers/premium";
 
 export async function runWhosaid(
   ctx: Context,
@@ -43,6 +44,9 @@ export function whosaidCommand(openai: OpenAI): Composer<Context> {
     const chatId = ctx.chat?.id;
     if (!chatId) return;
 
+    const userId = ctx.from?.id;
+    if (!userId) return;
+
     const parts = ctx.message?.text?.split(" ");
     const rawUsername = parts?.[1]?.replace(/^@/, "");
     if (!rawUsername) {
@@ -52,13 +56,18 @@ export function whosaidCommand(openai: OpenAI): Composer<Context> {
 
     const timeArgStr = parts?.[2];
 
-    if (ctx.chat.type !== "private") {
-      await runWhosaid(ctx, openai, chatId, rawUsername, timeArgStr);
+    // Premium check
+    const allowed = await checkUsageLimit(userId);
+    if (allowed !== true) {
+      await ctx.reply(allowed);
       return;
     }
 
-    const userId = ctx.from?.id;
-    if (!userId) return;
+    if (ctx.chat.type !== "private") {
+      await incrementUsage(userId);
+      await runWhosaid(ctx, openai, chatId, rawUsername, timeArgStr);
+      return;
+    }
 
     const groups = await getUserGroups(userId);
     if (groups.length === 0) {
@@ -67,6 +76,7 @@ export function whosaidCommand(openai: OpenAI): Composer<Context> {
     }
 
     if (groups.length === 1) {
+      await incrementUsage(userId);
       await runWhosaid(ctx, openai, groups[0].chatId, rawUsername, timeArgStr);
       return;
     }

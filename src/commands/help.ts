@@ -18,8 +18,10 @@ Commands (work in groups and DMs):
 /whosaid <user> 2h — what someone said in last 2h
 /stats — how many messages I've recorded
 /groups — list your groups (DM only)
+/pro — upgrade to Pro (unlimited summaries)
 /help — this message
 
+Free: 5 summaries per day. Pro: unlimited for 100 Stars/month.
 DM me to get private summaries without spamming the group.`
     );
   });

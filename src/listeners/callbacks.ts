@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { runSummary } from "../commands/summary";
 import { runTopic } from "../commands/topic";
 import { runWhosaid } from "../commands/whosaid";
+import { incrementUsage } from "../helpers/premium";
 
 export function callbackHandler(openai: OpenAI): Composer<Context> {
   const composer = new Composer<Context>();
@@ -31,6 +32,8 @@ export function callbackHandler(openai: OpenAI): Composer<Context> {
     if (isNaN(chatId)) return;
 
     const command = parts[0];
+    const userId = ctx.from?.id;
+    if (userId) await incrementUsage(userId);
 
     if (command === "summary") {
       const arg = parts[1]; // time/count arg
