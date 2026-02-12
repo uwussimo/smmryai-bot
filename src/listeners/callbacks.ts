@@ -5,6 +5,7 @@ import { runTopic } from "../commands/topic";
 import { runWhosaid } from "../commands/whosaid";
 import { incrementUsage, checkUsageLimit } from "../helpers/premium";
 import { getUserGroups } from "../helpers/groups";
+import { setUserLanguage, getUserLanguage } from "../helpers/settings";
 
 export function callbackHandler(openai: OpenAI): Composer<Context> {
   const composer = new Composer<Context>();
@@ -42,6 +43,18 @@ export function callbackHandler(openai: OpenAI): Composer<Context> {
           `Commands:\n/summary 200 — last 200 messages\n/summary 2h — last 2 hours\n/summary today — since midnight\n/topic <keyword> — topic search\n/whosaid <user> — what someone said\n/groups — your groups\n/pro — upgrade to Pro\n\nFree: 5 summaries/day. Pro: unlimited.`,
         );
         return;
+      }
+      return;
+    }
+
+    // --- Language selection ---
+    if (command === "lang") {
+      if (!userId) return;
+      const langCode = parts[1];
+      const langNames: Record<string, string> = { en: "English", ru: "Русский", uz: "O'zbek" };
+      if (langNames[langCode]) {
+        await setUserLanguage(userId, langCode);
+        await editOrReply(ctx, `Language set to ${langNames[langCode]}.`);
       }
       return;
     }

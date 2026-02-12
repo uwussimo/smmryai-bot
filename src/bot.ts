@@ -11,16 +11,19 @@ import { statsCommand } from "./commands/stats";
 import { groupsCommand } from "./commands/groups";
 import { startCommand } from "./commands/start";
 import { proCommand } from "./commands/pro";
+import { langCommand } from "./commands/lang";
+import { touchActivity } from "./helpers/analytics";
 
 export function createBot(token: string, openaiKey: string): Bot {
   const bot = new Bot(token);
   const openai = new OpenAI({ apiKey: openaiKey });
 
-  // Debug logging
+  // Debug logging + activity tracking
   bot.use(async (ctx, next) => {
     console.log(
       `[UPDATE] chat=${ctx.chat?.id}, from=${ctx.from?.username ?? ctx.from?.id}, text=${ctx.message?.text ?? "(no text)"}`,
     );
+    if (ctx.from?.id) touchActivity(ctx.from.id).catch(() => {});
     await next();
   });
 
@@ -42,6 +45,7 @@ export function createBot(token: string, openaiKey: string): Bot {
   bot.use(helpCommand());
   bot.use(statsCommand());
   bot.use(proCommand());
+  bot.use(langCommand());
 
   return bot;
 }

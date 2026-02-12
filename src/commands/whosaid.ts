@@ -5,6 +5,7 @@ import { fetchMessages, buildTranscript } from "../helpers/messages";
 import { askGPT, WHOSAID_PROMPT } from "../helpers/openai";
 import { getUserGroups, buildGroupKeyboard, buildFollowUpKeyboard, isDM } from "../helpers/groups";
 import { checkUsageLimit, incrementUsage } from "../helpers/premium";
+import { getUserLanguage } from "../helpers/settings";
 
 export async function runWhosaid(
   ctx: Context,
@@ -21,6 +22,7 @@ export async function runWhosaid(
     return;
   }
 
+  const lang = await getUserLanguage(ctx.from?.id ?? 0);
   const transcript = buildTranscript(messages);
   const statusMsg = await ctx.reply(`Summarizing ${messages.length} messages from @${rawUsername}...`);
 
@@ -29,6 +31,7 @@ export async function runWhosaid(
       openai,
       WHOSAID_PROMPT,
       `Summarize what @${rawUsername} said in these ${messages.length} messages:\n\n${transcript}`,
+      lang,
     );
     if (isDM(ctx)) {
       await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, result, {

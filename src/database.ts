@@ -3,6 +3,7 @@ import { Message } from "./entity/Message";
 import { UserGroup } from "./entity/UserGroup";
 import { Subscription } from "./entity/Subscription";
 import { DailyUsage } from "./entity/DailyUsage";
+import { UserSettings } from "./entity/UserSettings";
 
 const dbPath = process.env.DB_PATH ?? "bot.db";
 
@@ -10,7 +11,7 @@ export const AppDataSource = new DataSource({
   type: "better-sqlite3",
   database: dbPath,
   synchronize: true,
-  entities: [Message, UserGroup, Subscription, DailyUsage],
+  entities: [Message, UserGroup, Subscription, DailyUsage, UserSettings],
 });
 
 export async function initDatabase(): Promise<DataSource> {

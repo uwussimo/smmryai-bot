@@ -18,6 +18,7 @@ Commands (work in groups and DMs):
 /whosaid <user> 2h — what someone said in last 2h
 /stats — how many messages I've recorded
 /groups — list your groups (DM only)
+/lang — set summary language (en/ru/uz)
 /pro — upgrade to Pro (unlimited summaries)
 /help — this message
 

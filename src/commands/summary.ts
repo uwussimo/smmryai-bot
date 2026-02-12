@@ -5,6 +5,7 @@ import { fetchMessages, buildTranscript } from "../helpers/messages";
 import { askGPT, SUMMARY_PROMPT } from "../helpers/openai";
 import { getUserGroups, buildGroupKeyboard, buildFollowUpKeyboard, isDM } from "../helpers/groups";
 import { checkUsageLimit, incrementUsage } from "../helpers/premium";
+import { getUserLanguage } from "../helpers/settings";
 
 export async function runSummary(
   ctx: Context,
@@ -20,6 +21,7 @@ export async function runSummary(
     return;
   }
 
+  const lang = await getUserLanguage(ctx.from?.id ?? 0);
   const transcript = buildTranscript(messages);
   const statusMsg = await ctx.reply(`Summarizing ${messages.length} messages...`);
 
@@ -28,6 +30,7 @@ export async function runSummary(
       openai,
       SUMMARY_PROMPT,
       `Summarize the following ${messages.length} messages from a group chat:\n\n${transcript}`,
+      lang,
     );
     if (isDM(ctx)) {
       await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, summary, {
