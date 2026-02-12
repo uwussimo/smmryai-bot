@@ -13,14 +13,21 @@ A Telegram bot that silently listens to group chat messages and generates AI-pow
 
 | Command | Description |
 |---|---|
-| `/summary <count>` | Summarize the last `<count>` messages (default: 50, max: 1000) |
-| `/stats` | Show how many messages have been recorded in the current chat |
+| `/summary 200` | Summarize the last 200 messages |
+| `/summary 2h` | Summarize the last 2 hours |
+| `/summary 30m` | Summarize the last 30 minutes |
+| `/summary today` | Summarize everything since midnight |
+| `/summary yesterday` | Summarize yesterday's messages |
+| `/topic <keyword>` | Search what was said about a specific topic |
+| `/whosaid <user>` | Summarize what a specific person said |
+| `/whosaid <user> 2h` | What did someone say in the last 2 hours |
+| `/stats` | Show how many messages have been recorded |
 
 ## Tech stack
 
 - **[Grammy](https://grammy.dev/)** — Telegram Bot framework for TypeScript
 - **[TypeORM](https://typeorm.io/)** + **SQLite** — message storage
-- **[OpenAI API](https://platform.openai.com/)** — GPT-4o-mini for summarization
+- **[OpenAI API](https://platform.openai.com/)** — GPT-4o for summarization
 
 ## Setup
 
