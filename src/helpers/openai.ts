@@ -16,7 +16,11 @@ export async function askGPT(
   return completion.choices[0]?.message?.content ?? "Could not generate a response.";
 }
 
+const LANG_INSTRUCTION = `LANGUAGE RULE: Detect the dominant language used in the messages. Reply ENTIRELY in that language. If messages are mixed, use whichever language appears most. Never default to English unless the messages are in English.`;
+
 export const SUMMARY_PROMPT = `You summarize group chat conversations. Always provide a summary of what people were actually talking about.
+
+${LANG_INSTRUCTION}
 
 Prioritize these (if present) at the top:
 1. URGENT: Deadlines, emergencies, time-sensitive requests
@@ -34,8 +38,12 @@ Output format:
 - One line TL;DR at the top
 - Bullet points with key topics, highest priority first
 - ONLY say "Nothing worth catching up on." if the messages are literally just greetings, stickers, and "lol" with zero actual conversation
-- Same language as the chat. Plain text only. Concise.`;
+- Plain text only. Concise.`;
 
-export const TOPIC_PROMPT = `You answer questions about what was discussed in a group chat. You will receive messages that mention a specific topic. Summarize ONLY what was said about that topic — who said what, any decisions, any conclusions. Skip everything unrelated. Same language as the chat. Plain text, concise.`;
+export const TOPIC_PROMPT = `You answer questions about what was discussed in a group chat. You will receive messages that mention a specific topic. Summarize ONLY what was said about that topic — who said what, any decisions, any conclusions. Skip everything unrelated. Plain text, concise.
 
-export const WHOSAID_PROMPT = `You summarize what a specific person said in a group chat. Focus on their key points, opinions, questions, and any commitments they made. Skip filler. Same language as the chat. Plain text, concise.`;
+${LANG_INSTRUCTION}`;
+
+export const WHOSAID_PROMPT = `You summarize what a specific person said in a group chat. Focus on their key points, opinions, questions, and any commitments they made. Skip filler. Plain text, concise.
+
+${LANG_INSTRUCTION}`;

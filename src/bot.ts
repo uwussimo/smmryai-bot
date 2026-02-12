@@ -8,6 +8,7 @@ import { whosaidCommand } from "./commands/whosaid";
 import { helpCommand } from "./commands/help";
 import { statsCommand } from "./commands/stats";
 import { groupsCommand } from "./commands/groups";
+import { startCommand } from "./commands/start";
 
 export function createBot(token: string, openaiKey: string): Bot {
   const bot = new Bot(token);
@@ -32,6 +33,7 @@ export function createBot(token: string, openaiKey: string): Bot {
   bot.use(topicCommand(openai));
   bot.use(whosaidCommand(openai));
   bot.use(groupsCommand());
+  bot.use(startCommand());
   bot.use(helpCommand());
   bot.use(statsCommand());
 

@@ -7,12 +7,14 @@ A Telegram bot that silently listens to group chat messages and generates AI-pow
 1. Add the bot to a group chat
 2. It quietly records all messages in the background
 3. When you need to catch up, run `/summary 200` to get a summary of the last 200 messages
-4. The bot filters out spam, jokes, and banter — only reporting decisions, plans, tasks, and important info, ranked by priority
+4. The bot auto-detects the chat language and replies in the same language
+5. DM the bot for private summaries — no group spam
 
 ## Commands
 
 | Command | Description |
 |---|---|
+| `/start` | Welcome message and getting started |
 | `/summary 200` | Summarize the last 200 messages |
 | `/summary 2h` | Summarize the last 2 hours |
 | `/summary 30m` | Summarize the last 30 minutes |
@@ -21,7 +23,19 @@ A Telegram bot that silently listens to group chat messages and generates AI-pow
 | `/topic <keyword>` | Search what was said about a specific topic |
 | `/whosaid <user>` | Summarize what a specific person said |
 | `/whosaid <user> 2h` | What did someone say in the last 2 hours |
+| `/groups` | List your groups (DM only) |
 | `/stats` | Show how many messages have been recorded |
+| `/help` | Show all available commands |
+
+All commands work in both group chats and DMs. In DMs, the bot will ask you to pick a group if you're in more than one.
+
+## Features
+
+- **Auto language detection** — replies in the dominant language of the conversation
+- **Private summaries** — DM the bot to get summaries without spamming the group
+- **Priority ranking** — urgent items, decisions, and plans float to the top
+- **Topic search** — find what was said about a specific subject
+- **Per-user summaries** — see what a specific person has been saying
 
 ## Tech stack
 
