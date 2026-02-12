@@ -7,25 +7,25 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 if (!BOT_TOKEN) {
-  console.error("Missing BOT_TOKEN in .env");
-  process.exit(1);
+	console.error("Missing BOT_TOKEN in .env");
+	process.exit(1);
 }
 if (!OPENAI_API_KEY) {
-  console.error("Missing OPENAI_API_KEY in .env");
-  process.exit(1);
+	console.error("Missing OPENAI_API_KEY in .env");
+	process.exit(1);
 }
 
 async function main() {
-  await initDatabase();
+	await initDatabase();
 
-  const bot = createBot(BOT_TOKEN!, OPENAI_API_KEY!);
+	const bot = createBot(BOT_TOKEN!, OPENAI_API_KEY!);
 
-  bot.catch((err) => {
-    console.error("Bot error:", err);
-  });
+	bot.catch((err) => {
+		console.error("Bot error:", err);
+	});
 
-  console.log("Bot is running...");
-  bot.start();
+	console.log("Bot is running...");
+	bot.start();
 }
 
 main();
