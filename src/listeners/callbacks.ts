@@ -5,7 +5,7 @@ import { runTopic } from "../commands/topic";
 import { runWhosaid } from "../commands/whosaid";
 import { incrementUsage, checkUsageLimit } from "../helpers/premium";
 import { getUserGroups } from "../helpers/groups";
-import { setUserLanguage, getUserLanguage } from "../helpers/settings";
+import { setUserLanguage } from "../helpers/settings";
 
 export function callbackHandler(openai: OpenAI): Composer<Context> {
 	const composer = new Composer<Context>();
