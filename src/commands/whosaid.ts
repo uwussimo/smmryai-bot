@@ -3,6 +3,38 @@ import OpenAI from "openai";
 import { parseTimeArg } from "../helpers/time";
 import { fetchMessages, buildTranscript } from "../helpers/messages";
 import { askGPT, WHOSAID_PROMPT } from "../helpers/openai";
+import { getUserGroups, buildGroupKeyboard } from "../helpers/groups";
+
+export async function runWhosaid(
+  ctx: Context,
+  openai: OpenAI,
+  targetChatId: number,
+  rawUsername: string,
+  timeArgStr: string | undefined,
+): Promise<void> {
+  const timeArg = parseTimeArg(timeArgStr);
+  const messages = await fetchMessages(targetChatId, timeArg, { username: rawUsername });
+
+  if (messages.length === 0) {
+    await ctx.reply(`No messages found from @${rawUsername}.`);
+    return;
+  }
+
+  const transcript = buildTranscript(messages);
+  const statusMsg = await ctx.reply(`Summarizing ${messages.length} messages from @${rawUsername}...`);
+
+  try {
+    const result = await askGPT(
+      openai,
+      WHOSAID_PROMPT,
+      `Summarize what @${rawUsername} said in these ${messages.length} messages:\n\n${transcript}`,
+    );
+    await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, result);
+  } catch (err) {
+    console.error("OpenAI error:", err);
+    await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, "Failed to generate summary. Please try again later.");
+  }
+}
 
 export function whosaidCommand(openai: OpenAI): Composer<Context> {
   const composer = new Composer<Context>();
@@ -18,28 +50,29 @@ export function whosaidCommand(openai: OpenAI): Composer<Context> {
       return;
     }
 
-    const timeArg = parseTimeArg(parts?.[2]);
-    const messages = await fetchMessages(chatId, timeArg, { username: rawUsername });
+    const timeArgStr = parts?.[2];
 
-    if (messages.length === 0) {
-      await ctx.reply(`No messages found from @${rawUsername}.`);
+    if (ctx.chat.type !== "private") {
+      await runWhosaid(ctx, openai, chatId, rawUsername, timeArgStr);
       return;
     }
 
-    const transcript = buildTranscript(messages);
-    const statusMsg = await ctx.reply(`Summarizing ${messages.length} messages from @${rawUsername}...`);
+    const userId = ctx.from?.id;
+    if (!userId) return;
 
-    try {
-      const result = await askGPT(
-        openai,
-        WHOSAID_PROMPT,
-        `Summarize what @${rawUsername} said in these ${messages.length} messages:\n\n${transcript}`,
-      );
-      await ctx.api.editMessageText(chatId, statusMsg.message_id, result);
-    } catch (err) {
-      console.error("OpenAI error:", err);
-      await ctx.api.editMessageText(chatId, statusMsg.message_id, "Failed to generate summary. Please try again later.");
+    const groups = await getUserGroups(userId);
+    if (groups.length === 0) {
+      await ctx.reply("I haven't seen you in any groups yet.");
+      return;
     }
+
+    if (groups.length === 1) {
+      await runWhosaid(ctx, openai, groups[0].chatId, rawUsername, timeArgStr);
+      return;
+    }
+
+    const keyboard = buildGroupKeyboard(groups, `whosaid:${rawUsername}:${timeArgStr ?? ""}`);
+    await ctx.reply("Which group?", { reply_markup: keyboard });
   });
 
   return composer;

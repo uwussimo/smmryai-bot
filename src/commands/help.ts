@@ -7,7 +7,7 @@ export function helpCommand(): Composer<Context> {
     await ctx.reply(
 `smmryai_bot — I silently record messages and summarize on demand.
 
-Commands:
+Commands (work in groups and DMs):
 /summary 200 — last 200 messages
 /summary 2h — last 2 hours
 /summary 30m — last 30 minutes
@@ -17,7 +17,10 @@ Commands:
 /whosaid <user> — what someone said
 /whosaid <user> 2h — what someone said in last 2h
 /stats — how many messages I've recorded
-/help — this message`
+/groups — list your groups (DM only)
+/help — this message
+
+DM me to get private summaries without spamming the group.`
     );
   });
 

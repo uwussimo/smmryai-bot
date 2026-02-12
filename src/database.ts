@@ -1,5 +1,6 @@
 import { DataSource } from "typeorm";
 import { Message } from "./entity/Message";
+import { UserGroup } from "./entity/UserGroup";
 
 const dbPath = process.env.DB_PATH ?? "bot.db";
 
@@ -7,7 +8,7 @@ export const AppDataSource = new DataSource({
   type: "better-sqlite3",
   database: dbPath,
   synchronize: true,
-  entities: [Message],
+  entities: [Message, UserGroup],
 });
 
 export async function initDatabase(): Promise<DataSource> {
