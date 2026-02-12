@@ -1,32 +1,34 @@
 import OpenAI from "openai";
 
 const LANG_NAMES: Record<string, string> = {
-  en: "English",
-  ru: "Russian",
-  uz: "Uzbek",
+	en: "English",
+	ru: "Russian",
+	uz: "Uzbek",
 };
 
 function langInstruction(lang: string): string {
-  const name = LANG_NAMES[lang];
-  if (!name) return "";
-  return `\n\nLANGUAGE RULE: Reply ENTIRELY in ${name}. Do not use any other language.`;
+	const name = LANG_NAMES[lang];
+	if (!name) return "";
+	return `\n\nLANGUAGE RULE: Reply ENTIRELY in ${name}. Do not use any other language.`;
 }
 
 export async function askGPT(
-  openai: OpenAI,
-  systemPrompt: string,
-  userPrompt: string,
-  lang: string = "en",
+	openai: OpenAI,
+	systemPrompt: string,
+	userPrompt: string,
+	lang: string = "en",
 ): Promise<string> {
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      { role: "system", content: systemPrompt + langInstruction(lang) },
-      { role: "user", content: userPrompt },
-    ],
-    max_tokens: 1500,
-  });
-  return completion.choices[0]?.message?.content ?? "Could not generate a response.";
+	const completion = await openai.chat.completions.create({
+		model: "gpt-4o",
+		messages: [
+			{ role: "system", content: systemPrompt + langInstruction(lang) },
+			{ role: "user", content: userPrompt },
+		],
+		max_tokens: 1500,
+	});
+	return (
+		completion.choices[0]?.message?.content ?? "Could not generate a response."
+	);
 }
 
 export const SUMMARY_PROMPT = `You summarize group chat conversations. Always provide a summary of what people were actually talking about.

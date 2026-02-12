@@ -1,11 +1,11 @@
 import { Composer, Context } from "grammy";
 
 export function helpCommand(): Composer<Context> {
-  const composer = new Composer<Context>();
+	const composer = new Composer<Context>();
 
-  composer.command("help", async (ctx) => {
-    await ctx.reply(
-`smmryai_bot — I silently record messages and summarize on demand.
+	composer.command("help", async (ctx) => {
+		await ctx.reply(
+			`smmryai_bot — I silently record messages and summarize on demand.
 
 Commands (work in groups and DMs):
 /summary 200 — last 200 messages
@@ -23,9 +23,9 @@ Commands (work in groups and DMs):
 /help — this message
 
 Free: 5 summaries per day. Pro: unlimited for 100 Stars/month.
-DM me to get private summaries without spamming the group.`
-    );
-  });
+DM me to get private summaries without spamming the group.`,
+		);
+	});
 
-  return composer;
+	return composer;
 }
