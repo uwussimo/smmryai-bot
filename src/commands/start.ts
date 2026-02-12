@@ -7,7 +7,7 @@ export function startCommand(): Composer<Context> {
   composer.command("start", async (ctx) => {
     if (ctx.chat?.type !== "private") {
       await ctx.reply(
-        "Hey! I'm silently recording messages. Use /summary to get a catch-up anytime.",
+        "Hey! I'm silently recording messages. Use /summary to get a catch-up anytime!",
       );
       return;
     }
@@ -19,7 +19,7 @@ export function startCommand(): Composer<Context> {
 
     if (groups.length === 0) {
       await ctx.reply(
-`Hey! I'm smmryai_bot — I summarize group chats so you don't have to read hundreds of messages.
+        `Hey! I'm smmryai_bot — I summarize group chats so you don't have to read hundreds of messages.
 
 How to use:
 1. Add me to a group chat
@@ -46,10 +46,9 @@ You're not in any groups yet — add me to one and send some messages first!`,
         .text("My Groups", `menu:groups`)
         .text("Help", `menu:help`);
 
-      await ctx.reply(
-        `Hey! Ready to catch up on ${groups[0].chatTitle}?`,
-        { reply_markup: keyboard },
-      );
+      await ctx.reply(`Hey! Ready to catch up on ${groups[0].chatTitle}?`, {
+        reply_markup: keyboard,
+      });
       return;
     }
 
