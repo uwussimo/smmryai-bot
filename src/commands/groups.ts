@@ -1,4 +1,4 @@
-import { Composer, Context } from "grammy";
+import { Composer, Context, InlineKeyboard } from "grammy";
 import { getUserGroups } from "../helpers/groups";
 
 export function groupsCommand(): Composer<Context> {
@@ -20,8 +20,12 @@ export function groupsCommand(): Composer<Context> {
       return;
     }
 
-    const list = groups.map((g, i) => `${i + 1}. ${g.chatTitle}`).join("\n");
-    await ctx.reply(`Your groups:\n\n${list}`);
+    const keyboard = new InlineKeyboard();
+    for (const group of groups) {
+      keyboard.text(group.chatTitle, `groupmenu:${group.chatId}`).row();
+    }
+
+    await ctx.reply("Your groups — tap one to see actions:", { reply_markup: keyboard });
   });
 
   return composer;

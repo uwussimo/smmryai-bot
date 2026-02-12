@@ -3,7 +3,7 @@ import { Like } from "typeorm";
 import OpenAI from "openai";
 import { messageRepo, buildTranscript } from "../helpers/messages";
 import { askGPT, TOPIC_PROMPT } from "../helpers/openai";
-import { getUserGroups, buildGroupKeyboard } from "../helpers/groups";
+import { getUserGroups, buildGroupKeyboard, buildFollowUpKeyboard, isDM } from "../helpers/groups";
 import { checkUsageLimit, incrementUsage } from "../helpers/premium";
 
 export async function runTopic(
@@ -32,7 +32,13 @@ export async function runTopic(
       TOPIC_PROMPT,
       `What did the group say about "${query}"? Here are the relevant messages:\n\n${transcript}`,
     );
-    await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, result);
+    if (isDM(ctx)) {
+      await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, result, {
+        reply_markup: buildFollowUpKeyboard(targetChatId),
+      });
+    } else {
+      await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, result);
+    }
   } catch (err) {
     console.error("OpenAI error:", err);
     await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, "Failed to search topic. Please try again later.");

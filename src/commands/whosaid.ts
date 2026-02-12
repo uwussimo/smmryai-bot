@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import { parseTimeArg } from "../helpers/time";
 import { fetchMessages, buildTranscript } from "../helpers/messages";
 import { askGPT, WHOSAID_PROMPT } from "../helpers/openai";
-import { getUserGroups, buildGroupKeyboard } from "../helpers/groups";
+import { getUserGroups, buildGroupKeyboard, buildFollowUpKeyboard, isDM } from "../helpers/groups";
 import { checkUsageLimit, incrementUsage } from "../helpers/premium";
 
 export async function runWhosaid(
@@ -30,7 +30,13 @@ export async function runWhosaid(
       WHOSAID_PROMPT,
       `Summarize what @${rawUsername} said in these ${messages.length} messages:\n\n${transcript}`,
     );
-    await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, result);
+    if (isDM(ctx)) {
+      await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, result, {
+        reply_markup: buildFollowUpKeyboard(targetChatId),
+      });
+    } else {
+      await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, result);
+    }
   } catch (err) {
     console.error("OpenAI error:", err);
     await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, "Failed to generate summary. Please try again later.");

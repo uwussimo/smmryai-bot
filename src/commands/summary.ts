@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import { parseTimeArg } from "../helpers/time";
 import { fetchMessages, buildTranscript } from "../helpers/messages";
 import { askGPT, SUMMARY_PROMPT } from "../helpers/openai";
-import { getUserGroups, buildGroupKeyboard } from "../helpers/groups";
+import { getUserGroups, buildGroupKeyboard, buildFollowUpKeyboard, isDM } from "../helpers/groups";
 import { checkUsageLimit, incrementUsage } from "../helpers/premium";
 
 export async function runSummary(
@@ -29,7 +29,13 @@ export async function runSummary(
       SUMMARY_PROMPT,
       `Summarize the following ${messages.length} messages from a group chat:\n\n${transcript}`,
     );
-    await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, summary);
+    if (isDM(ctx)) {
+      await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, summary, {
+        reply_markup: buildFollowUpKeyboard(targetChatId),
+      });
+    } else {
+      await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, summary);
+    }
   } catch (err) {
     console.error("OpenAI error:", err);
     await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, "Failed to generate summary. Please try again later.");

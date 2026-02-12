@@ -1,6 +1,6 @@
 import { AppDataSource } from "../database";
 import { UserGroup } from "../entity/UserGroup";
-import { InlineKeyboard } from "grammy";
+import { InlineKeyboard, Context } from "grammy";
 
 const userGroupRepo = () => AppDataSource.getRepository(UserGroup);
 
@@ -36,4 +36,17 @@ export function buildGroupKeyboard(
     keyboard.text(group.chatTitle, `${callbackPrefix}:${group.chatId}`).row();
   }
   return keyboard;
+}
+
+export function buildFollowUpKeyboard(chatId: number): InlineKeyboard {
+  return new InlineKeyboard()
+    .text("Last 2h", `summary:2h:${chatId}`)
+    .text("Today", `summary:today:${chatId}`)
+    .text("Yesterday", `summary:yesterday:${chatId}`)
+    .row()
+    .text("Back to groups", `menu:groups`);
+}
+
+export function isDM(ctx: Context): boolean {
+  return ctx.chat?.type === "private";
 }
